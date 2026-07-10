@@ -1193,16 +1193,24 @@
       });
       var targets = Object.keys(map).map(function (id) { return document.getElementById(id); });
       var current = null;
+      function setActive(a) {
+        if (!a || a === current) return;
+        if (current) current.classList.remove("active");
+        current = a;
+        current.classList.add("active");
+      }
       var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
-          if (en.isIntersecting) {
-            if (current) current.classList.remove("active");
-            current = map[en.target.id];
-            if (current) current.classList.add("active");
-          }
+          if (en.isIntersecting) setActive(map[en.target.id]);
         });
       }, { rootMargin: "-15% 0px -75% 0px", threshold: 0 });
       targets.forEach(function (t) { obs.observe(t); });
+
+      // Evidenzia subito la voce cliccata (l'observer da solo può non scattare
+      // se la sezione salta fuori dalla fascia di osservazione, es. l'ultima).
+      links.forEach(function (a) {
+        a.addEventListener("click", function () { setActive(a); });
+      });
     } catch (e) { /* nessun problema: la navigazione funziona senza JS */ }
   })();
 </script>
